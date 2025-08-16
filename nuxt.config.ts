@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   ],
   routeRules: {
     '/api/**': {
-      proxy: 'http://45.76.144.201/api/**'
+      proxy: 'http://45.76.144.201/api'
     }
   }
   // generate 섹션 삭제!
