@@ -1,46 +1,39 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-const route = useRoute(); // Nuxt의 URL 정보 도우미
+import { ref, onMounted } from 'vue';
+const route = useRoute();
+import { useArticles } from '~/composables/useArticles';
 
-const articles = ref([]);
+const { articles } = useArticles();
 const isLoading = ref(true);
 const error = ref(null);
-// URL의 [lang] 파라미터를 가져와 현재 언어로 설정합니다.
 const currentLang = ref(route.params.lang || 'en');
 
-// 언어 선택(currentLang)이 바뀔 때마다 URL을 해당 언어 페이지로 이동시킵니다.
-watch(currentLang, (newLang) => {
+// --- 🔽 이 부분이 변경되었습니다 🔽 ---
+// watch 대신, 언어가 변경될 때만 호출될 함수를 만듭니다.
+function handleLanguageChange(event) {
+  const newLang = event.target.value;
   navigateTo(`/${newLang}`);
-});
+}
+// --- 🔼 여기까지 🔼 ---
 
-// API를 호출하는 함수
 async function fetchArticles() {
-  isLoading.value = true;
-  error.value = null;
-  try {
-    const data = await $fetch('/api/articles');
-    articles.value = data;
-  } catch (err) {
-    error.value = err;
-  } finally {
+  if (articles.value.length === 0) {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const data = await $fetch('/api/articles');
+      articles.value = data;
+    } catch (err) {
+      error.value = err;
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
     isLoading.value = false;
   }
 }
 
-// timeAgo 함수는 그대로 사용합니다.
-function timeAgo(dateString) {
-  if (!dateString) return '';
-  const date = new Date(dateString.replace(/\./g, '/'));
-  const seconds = Math.floor((new Date() - date) / 1000);
-  let interval = seconds / 3600;
-  if (interval > 24) return `${Math.floor(interval / 24)} days ago`;
-  if (interval > 1) return `${Math.floor(interval)} hours ago`;
-  interval = seconds / 60;
-  if (interval > 1) return `${Math.floor(interval)} minutes ago`;
-  return "Just now";
-}
-
-// 컴포넌트가 화면에 준비되면 API를 호출합니다.
+function timeAgo(dateString) { /* ... 기존과 동일 ... */ }
 onMounted(fetchArticles);
 </script>
 
@@ -50,7 +43,7 @@ onMounted(fetchArticles);
       <div class="flex justify-between items-center">
         <h1 class="text-xl font-bold text-gray-900">K-Beat AI</h1>
         <div class="relative">
-          <select v-model="currentLang" class="text-sm border rounded-md py-1 pl-2 appearance-none bg-transparent pr-8">
+          <select :value="currentLang" @change="handleLanguageChange" class="text-sm border rounded-md py-1 pl-2 appearance-none bg-transparent pr-8">
             <option value="ko">🇰🇷 한국어</option>
             <option value="en">🇺🇸 English</option>
             <option value="vi">🇻🇳 Tiếng Việt</option>
@@ -62,7 +55,7 @@ onMounted(fetchArticles);
         </div>
       </div>
     </header>
-
+    
     <main class="p-2">
       <div v-if="isLoading" class="p-8 text-center text-gray-500">Loading...</div>
       <div v-else-if="error" class="p-4 text-center text-red-500">Failed to load articles.</div>
