@@ -1,29 +1,34 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useArticles } from '~/composables/useArticles';
 
 const route = useRoute();
-const { articles } = useArticles();
+const { articles } = useArticles(); // 전역 상태에서 기사 목록 가져오기
+
 const isLoading = ref(true);
 const error = ref(null);
-const currentLang = ref(route.params.lang || 'en');
+const currentLang = ref(route.params.lang || 'en'); // URL에서 현재 언어 가져오기
 
-// 언어 선택 메뉴를 바꾸면, URL도 그에 맞게 /ko, /vi 등으로 변경합니다.
-watch(currentLang, (newLang) => {
-  if (route.params.lang !== newLang) {
-    navigateTo(`/${newLang}`);
-  }
-});
+// 사용자가 <select> 메뉴를 변경했을 때만 실행되는 함수
+function handleLanguageChange(event) {
+  const newLang = event.target.value;
+  navigateTo(`/${newLang}`);
+}
 
+// 컴포넌트가 처음 로딩될 때 기사를 가져오는 함수
 async function fetchArticles() {
+  // 전역 상태에 기사가 없을 때만 API를 호출
   if (articles.value.length === 0) {
     isLoading.value = true;
     error.value = null;
     try {
       const data = await $fetch('/api/articles');
       articles.value = data;
-    } catch (err) { error.value = err; }
-    finally { isLoading.value = false; }
+    } catch (err) {
+      error.value = err;
+    } finally {
+      isLoading.value = false;
+    }
   } else {
     isLoading.value = false;
   }
@@ -50,7 +55,7 @@ onMounted(fetchArticles);
       <div class="flex justify-between items-center">
         <h1 class="text-xl font-bold text-gray-900">K-Beat AI</h1>
         <div class="relative">
-          <select v-model="currentLang" class="text-sm border rounded-md py-1 pl-2 appearance-none bg-transparent pr-8">
+          <select :value="currentLang" @change="handleLanguageChange" class="text-sm border rounded-md py-1 pl-2 appearance-none bg-transparent pr-8">
             <option value="ko">🇰🇷 한국어</option>
             <option value="en">🇺🇸 English</option>
             <option value="vi">🇻🇳 Tiếng Việt</option>
