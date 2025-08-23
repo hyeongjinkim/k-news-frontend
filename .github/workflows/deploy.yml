@@ -1,0 +1,35 @@
+name: Deploy to Vultr Server
+
+# main 브랜치에 push 이벤트가 발생했을 때만 이 액션을 실행합니다.
+on:
+  push:
+    branches: [ main ]
+
+# 실행될 작업들을 정의합니다.
+jobs:
+  deploy:
+    # 이 작업은 ubuntu 최신 버전 환경에서 실행됩니다.
+    runs-on: ubuntu-latest
+
+    # 작업 단계들을 순서대로 정의합니다.
+    steps:
+    # 1. SSH 접속 및 배포 스크립트 실행
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }} # 서버 IP
+        username: ${{ secrets.REMOTE_USER }} # 서버 사용자 이름 (예: k-news-admin)
+        key: ${{ secrets.REMOTE_SSH_KEY }} # 서버 접속용 SSH 비공개 키
+        script: |
+          # 프론트엔드 배포
+          cd ~/k-news-frontend
+          git pull
+          npm install
+          npm run build
+          pm2 restart k-news-frontend
+
+          # 백엔드 배포 (백엔드 코드 변경 시에만 필요)
+          cd ~/seoulsync/backend
+          git pull
+          # pip install -r requirements.txt # (만약 requirements.txt가 있다면)
+          pm2 restart k-news-backend
