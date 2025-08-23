@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   routeRules: {
     '/api/**': {
       // ⬇️ Change this line
-      proxy: 'http://127.0.0.1:8000/api/**'
+      proxy: 'http://45.76.144.201:8000/api/**'
     }
   }
 })
