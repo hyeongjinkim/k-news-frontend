@@ -33,7 +33,7 @@ jobs:
           # 이 명령어는 pm2가 ecosystem 파일에 정의된 interpreter와 cwd를 사용하게 함
           pm2 startOrRestart ecosystem.config.js
           
-          # pm2가 관리하는 프로세스 목록을 저장하여 서버 재부팅 시에도 유지
+          # pm2가 관리하는 프로세스 목록을 저장하여 서버 재부팅 시에도 유지.
           pm2 save
           
           echo ">>> Deployment Finished!"
