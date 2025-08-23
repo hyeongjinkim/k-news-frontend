@@ -24,7 +24,7 @@ jobs:
           npm run build
           pm2 restart k-news-frontend
 
-          # --- Backend Deployment ---
+          # --- Backend Deployments ---
           echo ">>> Deploying Backend..."
           cd /home/k-news-admin/seoulsync/backend
           git pull
