@@ -2,10 +2,14 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  // 🔽 이 부분을 추가해주세요!
+  modules: [
+    '@nuxtjs/tailwindcss'
+  ],
+
   routeRules: {
     '/api/**': {
-      // ⬇️ Change this line
-      proxy: 'http://45.76.144.201:8000/api/**'
+      proxy: 'http://127.0.0.1:8000/api/**' 
     }
   }
 })
