@@ -18,7 +18,7 @@ jobs:
         script: |
           # --- Frontend Deployment ---
           echo ">>> Deploying Frontend..."
-          cd ~/k-news-frontend
+          cd /home/k-news-admin/k-news-frontend
           git pull
           npm install
           npm run build
@@ -26,14 +26,14 @@ jobs:
 
           # --- Backend Deployment ---
           echo ">>> Deploying Backend..."
-          cd ~/seoulsync/backend
-          git pull  # ecosystem.config.js 파일을 포함한 최신 코드를 받음
-          pm2 startOrRestart ecosystem.config.js # 설정 파일로 재시작
-
-          # pm2 설정 저장
-          pm2 save
+          cd /home/k-news-admin/seoulsync/backend
+          git pull
           
-          # pm2 설정 저장
+          # ecosystem.config.js를 사용하여 안정적으로 재시작
+          # 이 명령어는 pm2가 ecosystem 파일에 정의된 interpreter와 cwd를 사용하게 함
+          pm2 startOrRestart ecosystem.config.js
+          
+          # pm2가 관리하는 프로세스 목록을 저장하여 서버 재부팅 시에도 유지
           pm2 save
           
           echo ">>> Deployment Finished!"
