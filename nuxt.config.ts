@@ -2,9 +2,13 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  // 🔽 이 부분을 추가해주세요!
   modules: [
     '@nuxtjs/tailwindcss'
+  ],
+
+  // 🔽 이 부분을 추가해주세요!
+  css: [
+    '~/assets/css/tailwind.css',
   ],
 
   routeRules: {
