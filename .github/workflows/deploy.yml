@@ -27,9 +27,11 @@ jobs:
           # --- Backend Deployment ---
           echo ">>> Deploying Backend..."
           cd ~/seoulsync/backend
-          git pull
-          # ecosystem.config.js 파일을 사용하여 안정적으로 재시작
-          pm2 startOrRestart ecosystem.config.js
+          git pull  # ecosystem.config.js 파일을 포함한 최신 코드를 받음
+          pm2 startOrRestart ecosystem.config.js # 설정 파일로 재시작
+
+          # pm2 설정 저장
+          pm2 save
           
           # pm2 설정 저장
           pm2 save
