@@ -27,16 +27,11 @@ jobs:
           # --- Backend Deployment ---
           echo ">>> Deploying Backend..."
           cd ~/seoulsync/backend
-          # 백엔드 코드가 변경되었을 수 있으니 git pull 실행
           git pull
-          # (선택사항) 만약 새로운 파이썬 라이브러리를 추가했다면 아래 줄의 주석을 푸세요.
-          # venv/bin/pip install -r requirements.txt
+          # ecosystem.config.js 파일을 사용하여 안정적으로 재시작
+          pm2 startOrRestart ecosystem.config.js
           
-          # 기존 프로세스를 삭제하고, 가상환경의 uvicorn을 직접 지정하여 재실행
-          pm2 delete k-news-backend || true 
-          pm2 start /home/k-news-admin/seoulsync/backend/venv/bin/uvicorn --name "k-news-backend" -- main:app --host 0.0.0.0 --port 8000
-          
-          # 현재 실행 중인 프로세스 목록을 저장하여 서버 재부팅 시에도 유지
+          # pm2 설정 저장
           pm2 save
           
           echo ">>> Deployment Finished!"
