@@ -17,6 +17,11 @@ jobs:
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         script: |
+          # --- 서버 필수 패키지 설치 (최초 1회 이후에는 자동으로 넘어감) ---
+          echo ">>> [Server] 필수 패키지를 설치합니다..."
+          sudo apt-get update
+          sudo apt-get install -y python3-dev default-libmysqlclient-dev build-essential
+
           # --- PM2 완전 초기화 ---
           echo ">>> [PM2] 모든 프로세스를 삭제하고 초기화합니다..."
           pm2 delete all || true
