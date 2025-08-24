@@ -95,7 +95,7 @@ watch(searchQuery, () => {
 // --- 라이프사이클 훅 ---
 onMounted(() => {
   // 초기 데이터 로드
-  if (articles.value.length === 0) {
+  if (articles.value.length === 0 || searchQuery.value) {
     fetchArticles(true);
   }
   // 스크롤 이벤트 리스너 추가
