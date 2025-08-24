@@ -5,7 +5,7 @@ const route = useRoute();
 const articleId = Number(route.params.id);
 const currentLang = ref(route.params.lang);
 
-// --- 상태 관리 ---
+// --- 상태 관리! ---
 const isLoading = ref(true);
 const isLoadingRelated = ref(false);
 const currentArticle = ref(null);
