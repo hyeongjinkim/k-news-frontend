@@ -1,11 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const route = useRoute();
-const articleId = Number(route.params.id);
+const articleId = ref(Number(route.params.id));
 const currentLang = ref(route.params.lang);
 
-// --- 상태 관리! ---
+// --- 상태 관리 ---
 const isLoading = ref(true);
 const isLoadingRelated = ref(false);
 const currentArticle = ref(null);
@@ -18,11 +18,11 @@ async function fetchArticleData() {
   error.value = null;
   try {
     // 단일 기사 정보 가져오기
-    currentArticle.value = await $fetch(`/api/article/${articleId}`);
+    currentArticle.value = await $fetch(`/api/article/${articleId.value}`);
     
     // 연관 기사 정보 가져오기
     isLoadingRelated.value = true;
-    relatedArticles.value = await $fetch(`/api/article/${articleId}/related`);
+    relatedArticles.value = await $fetch(`/api/article/${articleId.value}/related`);
   } catch (err) {
     error.value = err;
     console.error("Failed to fetch article data", err);
@@ -34,6 +34,15 @@ async function fetchArticleData() {
 
 // --- 라이프사이클 훅 ---
 onMounted(fetchArticleData);
+
+// 다른 연관 기사를 클릭했을 때 (URL이 변경되었을 때) 데이터를 다시 불러옵니다.
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    articleId.value = Number(newId);
+    fetchArticleData();
+    window.scrollTo(0, 0); // 페이지 상단으로 스크롤
+  }
+});
 </script>
 
 <template>
@@ -53,22 +62,31 @@ onMounted(fetchArticleData);
       </header>
       <main class="p-4">
         <article>
-          <img :src="currentArticle.image_url" class="w-full h-56 object-cover bg-gray-200 rounded-lg mb-4" alt="Article Image">
+          <!-- 🔽 이미지 클래스 수정: h-56, object-cover 제거하여 원본 비율 유지 -->
+          <img :src="currentArticle.image_url" class="w-full rounded-lg mb-4 bg-gray-200" alt="Article Image">
+          
           <h2 class="text-2xl font-bold mb-2 leading-tight">{{ currentArticle.translations[currentLang]?.title }}</h2>
           <div class="text-xs text-gray-400 mb-4">Source: {{ currentArticle.press }} · Published: {{ currentArticle.published_at }}</div>
           
-          <!-- 키워드 태그 추가 -->
+          <!-- 키워드 태그 -->
           <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
             <span v-for="keyword in currentArticle.keywords" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
               #{{ keyword }}
             </span>
           </div>
 
+          <!-- AI 요약 본문 -->
           <div v-html="currentArticle.translations[currentLang]?.summary.replace(/\n/g, '<br>')" class="space-y-4 text-base leading-relaxed text-gray-700"></div>
-          <a :href="currentArticle.original_url" target="_blank" class="inline-block mt-6 text-sm text-blue-500 hover:underline">Read Original Article &rarr;</a>
+          
+          <!-- '한편,' 추가 정보 문단 -->
+          <div v-if="currentArticle.additional_info && currentArticle.additional_info[currentLang]" class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-base leading-relaxed text-gray-800 font-semibold">{{ currentArticle.additional_info[currentLang] }}</p>
+          </div>
+
+          <a :href="currentArticle.original_url" target="_blank" class="inline-block mt-8 text-sm text-blue-500 hover:underline">Read Original Article &rarr;</a>
         </article>
 
-        <!-- 연관 기사 섹션 추가 -->
+        <!-- 연관 기사 섹션 -->
         <section v-if="relatedArticles.length > 0" class="mt-12 border-t pt-6">
           <h3 class="text-lg font-bold mb-4">Related Articles</h3>
           <div class="space-y-4">
