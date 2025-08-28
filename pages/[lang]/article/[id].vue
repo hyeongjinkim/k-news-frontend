@@ -92,7 +92,7 @@ watch(() => route.params.id, (newId) => {
           <div class="space-y-4">
             <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/${currentLang}/article/${item.id}`">
               <article class="flex items-start space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                <img :src="item.image_url" alt="Thumbnail" class="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+                <img :src="`/${item.image_path}`" alt="Thumbnail" class="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-md object-cover">
                 <div class="flex-grow">
                   <h4 class="font-bold text-sm leading-tight">{{ item.translations[currentLang]?.title }}</h4>
                   <p class="text-xs text-gray-500 mt-1">{{ item.press }}</p>

@@ -145,7 +145,7 @@ onUnmounted(() => {
       <div v-else>
         <NuxtLink v-for="item in articles" :key="item.id" :to="`/${currentLang}/article/${item.id}`">
           <article class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-            <img :src="item.image_url" alt="Thumbnail" class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+            <img :src="`/${item.image_path}`" alt="Thumbnail" class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md object-cover">
             <div class="flex-grow">
               <h2 class="font-bold text-base leading-tight">{{ item.translations[currentLang]?.title }}</h2>
               <p class="text-sm text-gray-600 mt-1">{{ item.translations[currentLang]?.one_sentence_summary }}</p>
