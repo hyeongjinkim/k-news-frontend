@@ -20,7 +20,6 @@ function handleLanguageChange(event) {
   navigateTo(`/${newLang}`);
 }
 
-// 기사 목록을 가져오는 핵심 함수
 async function fetchArticles(isNewSearch = false) {
   if (isLoading.value || isLoadingMore.value) return;
   
@@ -60,7 +59,6 @@ async function fetchArticles(isNewSearch = false) {
   }
 }
 
-// 시간 표시 함수
 function timeAgo(dateString) {
   if (!dateString) return '';
   const date = new Date(dateString.replace(/\./g, '/'));
@@ -73,9 +71,8 @@ function timeAgo(dateString) {
   return "Just now";
 }
 
-// 무한 스크롤 핸들러
 const handleScroll = () => {
-  const buffer = 200; // 200px 미리 로드
+  const buffer = 200;
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - buffer) {
     if (hasMoreArticles.value && !isLoadingMore.value) {
       fetchArticles();
@@ -83,27 +80,23 @@ const handleScroll = () => {
   }
 };
 
-// 검색어 변경 감지 (디바운스)
 let searchTimeout;
 watch(searchQuery, () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     fetchArticles(true);
-  }, 500); // 500ms 디바운스
+  }, 500);
 });
 
 // --- 라이프사이클 훅 ---
 onMounted(() => {
-  // 초기 데이터 로드
   if (articles.value.length === 0 || searchQuery.value) {
     fetchArticles(true);
   }
-  // 스크롤 이벤트 리스너 추가
   window.addEventListener('scroll', handleScroll);
 });
 
 onUnmounted(() => {
-  // 컴포넌트 파괴 시 리스너 제거
   window.removeEventListener('scroll', handleScroll);
 });
 </script>
@@ -125,7 +118,6 @@ onUnmounted(() => {
           <svg class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </div>
       </div>
-      <!-- 검색창 추가 -->
       <div class="relative">
         <input 
           type="search" 
@@ -145,7 +137,8 @@ onUnmounted(() => {
       <div v-else>
         <NuxtLink v-for="item in articles" :key="item.id" :to="`/${currentLang}/article/${item.id}`">
           <article class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-            <img :src="`/${item.image_path}`" alt="Thumbnail" class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+            <img v-if="item.image_path" :src="`/${item.image_path}`" alt="Thumbnail" class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+            <div v-else class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md"></div>
             <div class="flex-grow">
               <h2 class="font-bold text-base leading-tight">{{ item.translations[currentLang]?.title }}</h2>
               <p class="text-sm text-gray-600 mt-1">{{ item.translations[currentLang]?.one_sentence_summary }}</p>
