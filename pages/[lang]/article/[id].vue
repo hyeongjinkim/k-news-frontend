@@ -62,37 +62,33 @@ watch(() => route.params.id, (newId) => {
       </header>
       <main class="p-4">
         <article>
-          <!-- 🔽 이미지 클래스 수정: h-56, object-cover 제거하여 원본 비율 유지 -->
-          <img :src="currentArticle.image_url" class="w-full rounded-lg mb-4 bg-gray-200" alt="Article Image">
-          
+          <img v-if="currentArticle.image_path" :src="`/${currentArticle.image_path}`" class="w-full rounded-lg mb-4 bg-gray-200" alt="Article Image">
           <h2 class="text-2xl font-bold mb-2 leading-tight">{{ currentArticle.translations[currentLang]?.title }}</h2>
           <div class="text-xs text-gray-400 mb-4">Source: {{ currentArticle.press }} · Published: {{ currentArticle.published_at }}</div>
           
-          <!-- 키워드 태그 -->
           <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
             <span v-for="keyword in currentArticle.keywords" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
               #{{ keyword }}
             </span>
           </div>
 
-          <!-- AI 요약 본문 -->
-          <div v-html="currentArticle.translations[currentLang]?.summary.replace(/\n/g, '<br>')" class="space-y-4 text-base leading-relaxed text-gray-700"></div>
-          
-          <!-- '한편,' 추가 정보 문단 -->
-          <div v-if="currentArticle.additional_info && currentArticle.additional_info[currentLang]" class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-base leading-relaxed text-gray-800 font-semibold">{{ currentArticle.additional_info[currentLang] }}</p>
+          <div class="whitespace-pre-wrap text-base leading-relaxed text-gray-700">
+            {{ currentArticle.translations[currentLang]?.summary }}
           </div>
+          <div v-if="currentArticle.additional_info && currentArticle.additional_info[currentLang]" class="mt-6 pt-6 border-t border-gray-200">
+            <p class="whitespace-pre-wrap text-base leading-relaxed text-gray-800 font-semibold">{{ currentArticle.additional_info[currentLang] }}</p>
+            </div>
 
           <a :href="currentArticle.original_url" target="_blank" class="inline-block mt-8 text-sm text-blue-500 hover:underline">Read Original Article &rarr;</a>
         </article>
 
-        <!-- 연관 기사 섹션 -->
         <section v-if="relatedArticles.length > 0" class="mt-12 border-t pt-6">
           <h3 class="text-lg font-bold mb-4">Related Articles</h3>
           <div class="space-y-4">
             <NuxtLink v-for="item in relatedArticles" :key="item.id" :to="`/${currentLang}/article/${item.id}`">
               <article class="flex items-start space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                <img :src="`/${item.image_path}`" alt="Thumbnail" class="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+                <img v-if="item.image_path" :src="`/${item.image_path}`" alt="Thumbnail" class="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+                <div v-else class="w-20 h-20 flex-shrink-0 bg-gray-200 rounded-md"></div>
                 <div class="flex-grow">
                   <h4 class="font-bold text-sm leading-tight">{{ item.translations[currentLang]?.title }}</h4>
                   <p class="text-xs text-gray-500 mt-1">{{ item.press }}</p>
