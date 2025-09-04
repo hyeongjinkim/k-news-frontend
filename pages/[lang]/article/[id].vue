@@ -63,8 +63,8 @@ watch(() => route.params.id, (newId) => {
           <h2 class="text-2xl font-bold mb-2 leading-tight">{{ currentArticle.translations[currentLang]?.title }}</h2>
           <div class="text-xs text-gray-400 mb-4">Source: {{ currentArticle.press }} · Published: {{ currentArticle.published_at }}</div>
           
-          <div v-if="currentArticle.keywords && currentArticle.keywords[currentLang] && currentArticle.keywords[currentLang].length" class="flex flex-wrap gap-2 mb-6">
-            <span v-for="keyword in currentArticle.keywords[currentLang]" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
+          <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
+            <span v-for="keyword in currentArticle.keywords" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
               #{{ keyword }}
             </span>
           </div>
