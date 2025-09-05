@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue'; // 1. computed를 import 해야 합니다.
 
 const route = useRoute();
 const articleId = ref(Number(route.params.id));
@@ -11,6 +11,23 @@ const isLoadingRelated = ref(false);
 const currentArticle = ref(null);
 const relatedArticles = ref([]);
 const error = ref(null);
+
+// --- 💡 [추가] 줄바꿈을 처리하기 위한 computed 속성 ---
+const formattedSummary = computed(() => {
+  if (currentArticle.value && currentArticle.value.translations[currentLang.value]?.summary) {
+    // 요약 텍스트를 '\n' 기준으로 나누어 배열로 만듭니다.
+    return currentArticle.value.translations[currentLang.value].summary.split('\n');
+  }
+  return [];
+});
+
+const formattedAdditionalInfo = computed(() => {
+  if (currentArticle.value && currentArticle.value.additional_info && currentArticle.value.additional_info[currentLang.value]) {
+    return currentArticle.value.additional_info[currentLang.value].split('\n');
+  }
+  return [];
+});
+
 
 // --- 함수 ---
 async function fetchArticleData() {
@@ -92,12 +109,18 @@ watch(() => route.params.id, (newId) => {
             </span>
           </div>
 
-          <div class="whitespace-pre-wrap text-base leading-relaxed text-gray-700">
-            {{ currentArticle.translations[currentLang]?.summary }}
+          <div class="space-y-4 text-base leading-relaxed text-gray-700">
+            <p v-for="(paragraph, index) in formattedSummary" :key="`s-${index}`">
+              {{ paragraph }}
+            </p>
           </div>
           
-          <div v-if="currentArticle.additional_info && currentArticle.additional_info[currentLang]" class="mt-6 pt-6 border-t border-gray-200">
-            <p class="whitespace-pre-wrap text-base leading-relaxed text-gray-800 font-semibold">{{ currentArticle.additional_info[currentLang] }}</p>
+          <div v-if="formattedAdditionalInfo.length > 0" class="mt-6 pt-6 border-t border-gray-200">
+            <div class="space-y-4 text-base leading-relaxed text-gray-800 font-semibold">
+               <p v-for="(paragraph, index) in formattedAdditionalInfo" :key="`a-${index}`">
+                {{ paragraph }}
+              </p>
+            </div>
           </div>
 
           <a :href="currentArticle.original_url" target="_blank" class="inline-block mt-8 text-sm text-blue-500 hover:underline">Read Original Article &rarr;</a>
