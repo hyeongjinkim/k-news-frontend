@@ -29,21 +29,27 @@ async function fetchArticleData() {
   }
 }
 
-// 💡 목록 페이지와 동일한 timeAgo 함수 추가
+// 시간 표시 함수: UTC 시간을 올바르게 처리합니다.
 function timeAgo(item) {
+  // 1. 새 기사는 우리 시스템 등록 시간(UTC)을 사용하고, 없으면(기존 데이터) 원문 발행 시간을 사용합니다.
   const dateString = item.created_at || item.display_published_at;
   if (!dateString) return '';
-  
-  const formattedDateString = dateString.toString().includes('.') ? dateString.replace(/\./g, '/').split('/').slice(0, 3).join('/') + ' ' + dateString.split(' ')[1] : dateString;
-  const date = new Date(formattedDateString);
+
+  // 2. JavaScript의 Date 객체는 ISO 형식의 UTC 문자열을 자동으로 사용자 시간대로 변환합니다.
+  //    "2025.09.05 10:30" 같은 형식은 파싱 오류를 막기 위해 표준 형식으로 바꿔줍니다.
+  const date = new Date(dateString.toString().replace(' ', 'T').replace(/\./g, '-') + 'Z');
 
   const seconds = Math.floor((new Date() - date) / 1000);
-  let interval = seconds / 3600;
-  if (interval > 24) return `${Math.floor(interval / 24)} days ago`;
+  if (seconds < 5) return "Just now"; // 5초 미만은 Just now
+  if (seconds < 0) return "Just now"; // 혹시 모를 시간차 에러 방지
+
+  let interval = seconds / 86400;
+  if (interval > 1) return `${Math.floor(interval)} days ago`;
+  interval = seconds / 3600;
   if (interval > 1) return `${Math.floor(interval)} hours ago`;
   interval = seconds / 60;
   if (interval > 1) return `${Math.floor(interval)} minutes ago`;
-  return "Just now";
+  return `${Math.floor(seconds)} seconds ago`;
 }
 
 // --- 라이프사이클 훅 ---
