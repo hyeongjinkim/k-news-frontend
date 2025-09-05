@@ -29,6 +29,23 @@ async function fetchArticleData() {
   }
 }
 
+// 💡 목록 페이지와 동일한 timeAgo 함수 추가
+function timeAgo(item) {
+  const dateString = item.created_at || item.display_published_at;
+  if (!dateString) return '';
+  
+  const formattedDateString = dateString.toString().includes('.') ? dateString.replace(/\./g, '/').split('/').slice(0, 3).join('/') + ' ' + dateString.split(' ')[1] : dateString;
+  const date = new Date(formattedDateString);
+
+  const seconds = Math.floor((new Date() - date) / 1000);
+  let interval = seconds / 3600;
+  if (interval > 24) return `${Math.floor(interval / 24)} days ago`;
+  if (interval > 1) return `${Math.floor(interval)} hours ago`;
+  interval = seconds / 60;
+  if (interval > 1) return `${Math.floor(interval)} minutes ago`;
+  return "Just now";
+}
+
 // --- 라이프사이클 훅 ---
 onMounted(fetchArticleData);
 
@@ -61,7 +78,7 @@ watch(() => route.params.id, (newId) => {
           <img v-if="currentArticle.image_path" :src="`/${currentArticle.image_path}`" class="w-full rounded-lg mb-4 bg-gray-200" alt="Article Image">
           
           <h2 class="text-2xl font-bold mb-2 leading-tight">{{ currentArticle.translations[currentLang]?.title }}</h2>
-          <div class="text-xs text-gray-400 mb-4">Source: {{ currentArticle.press }} · Published: {{ currentArticle.published_at }}</div>
+          <div class="text-xs text-gray-400 mb-4">{{ currentArticle.press }} · {{ timeAgo(currentArticle) }}</div>
           
           <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
             <span v-for="keyword in currentArticle.keywords" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
