@@ -104,10 +104,9 @@ watch(() => route.params.id, (newId) => {
           <div class="text-xs text-gray-400 mb-4">{{ currentArticle.press }} · {{ timeAgo(currentArticle) }}</div>
           
           <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
-            <NuxtLink v-for="keyword in currentArticle.keywords" :key="keyword" :to="`/${currentLang}/artist/${keyword}`"
-              class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full hover:bg-gray-300 transition-colors">
+            <span v-for="keyword in currentArticle.keywords" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
               #{{ keyword }}
-            </NuxtLink>
+            </span>
           </div>
 
           <div class="space-y-4 text-base leading-relaxed text-gray-700">
