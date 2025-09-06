@@ -1,39 +1,36 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useArticles } from '~/composables/useArticles';
 
 const route = useRoute();
-const { articles } = useArticles(); // 전역 상태
+const { articles } = useArticles();
 
-// --- 상태 관리 ---
-const isLoading = ref(false);
-const isLoadingMore = ref(false);
-const error = ref(null);
+// 언어 설정
 const currentLang = ref(route.params.lang || 'en');
-const page = ref(1);
-const hasMoreArticles = ref(true);
 const searchQuery = ref('');
 
-// --- 함수 ---
+// SSG를 위해 초기 데이터 로드 (첫 페이지만)
+const { data: initialArticles } = await useFetch('/api/articles?page=1&limit=20');
+if (initialArticles.value) {
+  articles.value = initialArticles.value;
+}
+
+// 클라이언트에서만 실행될 상태들
+const isLoadingMore = ref(false);
+const page = ref(2); // 이미 1페이지는 로드했으므로 2부터 시작
+const hasMoreArticles = ref(true);
+
+// 언어 변경 함수
 function handleLanguageChange(event) {
   const newLang = event.target.value;
   navigateTo(`/${newLang}`);
 }
 
-async function fetchArticles(isNewSearch = false) {
-  if (isLoading.value || isLoadingMore.value) return;
+// 더 많은 기사 로드 (클라이언트에서만 실행)
+async function loadMore() {
+  if (!hasMoreArticles.value || isLoadingMore.value) return;
   
-  if (isNewSearch) {
-    page.value = 1;
-    articles.value = [];
-    hasMoreArticles.value = true;
-    isLoading.value = true;
-  } else {
-    isLoadingMore.value = true;
-  }
-  
-  error.value = null;
-
+  isLoadingMore.value = true;
   try {
     const params = new URLSearchParams({
       page: page.value,
@@ -52,27 +49,43 @@ async function fetchArticles(isNewSearch = false) {
       page.value++;
     }
   } catch (err) {
-    error.value = err;
+    console.error('Failed to load more articles:', err);
   } finally {
-    isLoading.value = false;
     isLoadingMore.value = false;
   }
 }
 
-// 시간 표시 함수: UTC 시간을 올바르게 처리합니다.
+// 검색 기능 (클라이언트에서만)
+async function handleSearch() {
+  page.value = 1;
+  articles.value = [];
+  hasMoreArticles.value = true;
+  
+  try {
+    const params = new URLSearchParams({
+      page: 1,
+      limit: 20
+    });
+    if (searchQuery.value) {
+      params.append('q', searchQuery.value);
+    }
+
+    const searchResults = await $fetch(`/api/articles?${params.toString()}`);
+    articles.value = searchResults;
+    page.value = 2;
+  } catch (err) {
+    console.error('Search failed:', err);
+  }
+}
+
+// timeAgo 함수는 그대로
 function timeAgo(item) {
-  // 1. 새 기사는 우리 시스템 등록 시간(UTC)을 사용하고, 없으면(기존 데이터) 원문 발행 시간을 사용합니다.
   const dateString = item.created_at || item.display_published_at;
   if (!dateString) return '';
-
-  // 2. JavaScript의 Date 객체는 ISO 형식의 UTC 문자열을 자동으로 사용자 시간대로 변환합니다.
-  // "2025.09.05 10:30" 같은 형식은 파싱 오류를 막기 위해 표준 형식으로 바꿔줍니다.
   const date = new Date(dateString.toString().replace(' ', 'T').replace(/\./g, '-') + 'Z');
-
   const seconds = Math.floor((new Date() - date) / 1000);
-  if (seconds < 5) return "Just now"; // 5초 미만은 Just now
-  if (seconds < 0) return "Just now"; // 혹시 모를 시간차 에러 방지
-
+  if (seconds < 5) return "Just now";
+  if (seconds < 0) return "Just now";
   let interval = seconds / 86400;
   if (interval > 1) return `${Math.floor(interval)} days ago`;
   interval = seconds / 3600;
@@ -82,33 +95,26 @@ function timeAgo(item) {
   return `${Math.floor(seconds)} seconds ago`;
 }
 
-const handleScroll = () => {
-  const buffer = 200;
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - buffer) {
-    if (hasMoreArticles.value && !isLoadingMore.value) {
-      fetchArticles();
-    }
-  }
-};
-
-let searchTimeout;
-watch(searchQuery, () => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    fetchArticles(true);
-  }, 500);
-});
-
-// --- 라이프사이클 훅 ---
+// 스크롤 이벤트 (클라이언트에서만)
 onMounted(() => {
-  if (articles.value.length === 0 || searchQuery.value) {
-    fetchArticles(true);
-  }
+  const handleScroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+      loadMore();
+    }
+  };
+  
   window.addEventListener('scroll', handleScroll);
+  
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+  });
 });
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
+// 검색 입력 감지
+watch(searchQuery, (newValue) => {
+  if (newValue === '') {
+    handleSearch();
+  }
 });
 </script>
 

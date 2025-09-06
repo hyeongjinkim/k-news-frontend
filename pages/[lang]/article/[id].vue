@@ -1,21 +1,17 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'; // 1. computed를 import 해야 합니다.
+import { ref, computed } from 'vue';
 
 const route = useRoute();
 const articleId = ref(Number(route.params.id));
 const currentLang = ref(route.params.lang);
 
-// --- 상태 관리 ---
-const isLoading = ref(true);
-const isLoadingRelated = ref(false);
-const currentArticle = ref(null);
-const relatedArticles = ref([]);
-const error = ref(null);
+// SSG를 위해 useFetch 사용 (서버에서 미리 데이터 가져옴)
+const { data: currentArticle, error } = await useFetch(`/api/article/${articleId.value}`);
+const { data: relatedArticles } = await useFetch(`/api/article/${articleId.value}/related`);
 
-// --- 💡 [추가] 줄바꿈을 처리하기 위한 computed 속성 ---
+// --- 💡 줄바꿈을 처리하기 위한 computed 속성 (그대로 유지) ---
 const formattedSummary = computed(() => {
   if (currentArticle.value && currentArticle.value.translations[currentLang.value]?.summary) {
-    // 요약 텍스트를 '\n' 기준으로 나누어 배열로 만듭니다.
     return currentArticle.value.translations[currentLang.value].summary.split('\n');
   }
   return [];
@@ -28,38 +24,14 @@ const formattedAdditionalInfo = computed(() => {
   return [];
 });
 
-
-// --- 함수 ---
-async function fetchArticleData() {
-  isLoading.value = true;
-  error.value = null;
-  try {
-    currentArticle.value = await $fetch(`/api/article/${articleId.value}`);
-    isLoadingRelated.value = true;
-    relatedArticles.value = await $fetch(`/api/article/${articleId.value}/related`);
-  } catch (err) {
-    error.value = err;
-    console.error("Failed to fetch article data", err);
-  } finally {
-    isLoading.value = false;
-    isLoadingRelated.value = false;
-  }
-}
-
-// 시간 표시 함수: UTC 시간을 올바르게 처리합니다.
+// timeAgo 함수는 그대로 유지
 function timeAgo(item) {
-  // 1. 새 기사는 우리 시스템 등록 시간(UTC)을 사용하고, 없으면(기존 데이터) 원문 발행 시간을 사용합니다.
   const dateString = item.created_at || item.display_published_at;
   if (!dateString) return '';
-
-  // 2. JavaScript의 Date 객체는 ISO 형식의 UTC 문자열을 자동으로 사용자 시간대로 변환합니다.
-  //    "2025.09.05 10:30" 같은 형식은 파싱 오류를 막기 위해 표준 형식으로 바꿔줍니다.
   const date = new Date(dateString.toString().replace(' ', 'T').replace(/\./g, '-') + 'Z');
-
   const seconds = Math.floor((new Date() - date) / 1000);
-  if (seconds < 5) return "Just now"; // 5초 미만은 Just now
-  if (seconds < 0) return "Just now"; // 혹시 모를 시간차 에러 방지
-
+  if (seconds < 5) return "Just now";
+  if (seconds < 0) return "Just now";
   let interval = seconds / 86400;
   if (interval > 1) return `${Math.floor(interval)} days ago`;
   interval = seconds / 3600;
@@ -68,26 +40,12 @@ function timeAgo(item) {
   if (interval > 1) return `${Math.floor(interval)} minutes ago`;
   return `${Math.floor(seconds)} seconds ago`;
 }
-
-// --- 라이프사이클 훅 ---
-onMounted(fetchArticleData);
-
-watch(() => route.params.id, (newId) => {
-  if (newId) {
-    articleId.value = Number(newId);
-    fetchArticleData();
-    window.scrollTo(0, 0);
-  }
-});
 </script>
 
 <template>
   <div>
-    <div v-if="isLoading" class="p-8 text-center text-gray-500">
-      Loading article...
-    </div>
-
-    <div v-else-if="currentArticle">
+    <!-- isLoading 부분 삭제하고 바로 currentArticle 체크 -->
+    <div v-if="currentArticle">
       <header class="p-4 border-b sticky top-0 bg-white/90 backdrop-blur-sm z-10">
         <div class="flex items-center">
           <NuxtLink :to="`/${currentLang}`" class="p-2 mr-2 rounded-full hover:bg-gray-100">
