@@ -162,7 +162,7 @@ onUnmounted(() => {
       <div v-else>
         <NuxtLink v-for="item in articles" :key="item.id" :to="`/${currentLang}/article/${item.id}`">
           <article class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-            <img v-if="item.image_path" :src="`/${item.image_path}`" alt="Thumbnail" class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md object-cover">
+            <img v-if="item.image_path" :src="item.image_path.startsWith('http') ? item.image_path : `/static/images/${item.image_path.split('/').pop()}`" alt="Thumbnail" class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md object-cover">
             <div v-else class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-md"></div>
             <div class="flex-grow">
               <h2 class="font-bold text-base leading-tight">{{ item.translations[currentLang]?.title }}</h2>
