@@ -24,6 +24,15 @@ const formattedAdditionalInfo = computed(() => {
   return [];
 });
 
+onMounted(() => {
+  // 조회수 증가 API 호출
+  $fetch(`/api/article/${articleId.value}/view`, {
+    method: 'POST'
+  }).catch(() => {
+    // 실패해도 무시
+  });
+});
+
 // timeAgo 함수는 그대로 유지
 function timeAgo(item) {
   const dateString = item.created_at || item.display_published_at;
