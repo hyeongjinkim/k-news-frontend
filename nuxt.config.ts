@@ -43,7 +43,12 @@ export default defineNuxtConfig({
     '/*/article/**': { 
       isr: true
     },
-    
+
+    '/*/keyword/**': { 
+      isr: 1200
+    },
+
+
     // API 프록시
     '/api/**': {
       proxy: 'http://127.0.0.1:8000/api/**'

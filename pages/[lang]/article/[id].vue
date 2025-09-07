@@ -70,10 +70,16 @@ function timeAgo(item) {
           <h2 class="text-2xl font-bold mb-2 leading-tight">{{ currentArticle.translations[currentLang]?.title }}</h2>
           <div class="text-xs text-gray-400 mb-4">{{ currentArticle.press }} · {{ timeAgo(currentArticle) }}</div>
           
+          <!-- 키워드 섹션을 클릭 가능하게 수정 -->
           <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
-            <span v-for="keyword in currentArticle.keywords" :key="keyword" class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
+            <NuxtLink 
+              v-for="keyword in currentArticle.keywords" 
+              :key="keyword" 
+              :to="`/${currentLang}/keyword/${encodeURIComponent(keyword)}`"
+              class="bg-gray-200 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full hover:bg-gray-300 transition-colors"
+            >
               #{{ keyword }}
-            </span>
+            </NuxtLink>
           </div>
 
           <div class="space-y-4 text-base leading-relaxed text-gray-700">
