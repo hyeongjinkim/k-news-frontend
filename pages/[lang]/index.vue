@@ -1,12 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useArticles } from '~/composables/useArticles';
+import { getMainPageMeta } from '~/utils/seo';
+
 
 const route = useRoute();
 const { articles } = useArticles();
 
 // 언어 설정
 const currentLang = ref(route.params.lang || 'en');
+// SEO 메타태그 적용
+useHead(getMainPageMeta(currentLang.value))
 const searchQuery = ref('');
 
 // SSG를 위해 초기 데이터 로드 (첫 페이지만)

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { getArticlePageMeta } from '~/utils/seo';
 
 const route = useRoute();
 const articleId = ref(Number(route.params.id));
@@ -8,6 +9,10 @@ const currentLang = ref(route.params.lang);
 // SSG를 위해 useFetch 사용 (서버에서 미리 데이터 가져옴)
 const { data: currentArticle, error } = await useFetch(`/api/article/${articleId.value}`);
 const { data: relatedArticles } = await useFetch(`/api/article/${articleId.value}/related`);
+
+if (currentArticle.value) {
+  useHead(getArticlePageMeta(currentArticle.value, currentLang.value))
+}
 
 // --- 💡 줄바꿈을 처리하기 위한 computed 속성 (그대로 유지) ---
 const formattedSummary = computed(() => {
