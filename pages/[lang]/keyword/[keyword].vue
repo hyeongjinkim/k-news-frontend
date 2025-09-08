@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { getKeywordPageMeta } from '~/utils/seo';  // 👈 추가
 
 const route = useRoute();
 const keyword = ref(decodeURIComponent(route.params.keyword));
@@ -7,6 +8,9 @@ const currentLang = ref(route.params.lang);
 
 // SSG/ISR을 위한 데이터 페칭
 const { data: articles, error } = await useFetch(`/api/articles/keyword/${encodeURIComponent(keyword.value)}`);
+
+// SEO 메타태그 적용 👈 추가
+useHead(getKeywordPageMeta(keyword.value, currentLang.value))
 
 function timeAgo(item) {
   const dateString = item.created_at || item.display_published_at;

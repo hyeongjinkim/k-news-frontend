@@ -111,7 +111,7 @@ onUnmounted(() => {
   <div>
     <header class="p-4 border-b sticky top-0 bg-white/90 backdrop-blur-sm z-10">
       <div class="flex justify-between items-center mb-4">
-        <h1 class="text-xl font-bold text-gray-900">K-Beat AI</h1>
+        <h1 class="text-xl font-bold text-gray-900">oppagram</h1>
         <div class="relative">
           <select :value="currentLang" @change="handleLanguageChange" class="text-sm border rounded-md py-1 pl-2 appearance-none bg-transparent pr-8">
             <option value="ko">🇰🇷 한국어</option>

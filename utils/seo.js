@@ -274,3 +274,154 @@ export function getArticlePageMeta(article, lang) {
     ]
   }
 }
+
+
+export function getKeywordPageMeta(keyword, lang) {
+  const info = siteInfo[lang] || siteInfo.en
+  const baseUrl = 'https://oppagram.com'
+  
+  // 언어별 키워드 페이지 제목/설명 템플릿
+  const templates = {
+    ko: {
+      title: `${keyword} 관련 뉴스 - oppagram`,
+      description: `${keyword}에 대한 최신 K-POP 뉴스와 소식을 확인하세요. 실시간 업데이트되는 ${keyword} 관련 기사 모음`
+    },
+    en: {
+      title: `${keyword} News & Updates - oppagram`,
+      description: `Latest K-POP news and updates about ${keyword}. Find all articles related to ${keyword} in one place`
+    },
+    ja: {
+      title: `${keyword} 関連ニュース - oppagram`,
+      description: `${keyword}に関する最新のK-POPニュースと情報。${keyword}関連の記事をまとめてチェック`
+    },
+    zh: {
+      title: `${keyword} 相关新闻 - oppagram`,
+      description: `关于${keyword}的最新K-POP新闻和资讯。查看所有${keyword}相关文章`
+    },
+    es: {
+      title: `Noticias sobre ${keyword} - oppagram`,
+      description: `Las últimas noticias y actualizaciones de K-POP sobre ${keyword}. Encuentra todos los artículos relacionados con ${keyword}`
+    },
+    pt: {
+      title: `Notícias sobre ${keyword} - oppagram`,
+      description: `Últimas notícias e atualizações de K-POP sobre ${keyword}. Encontre todos os artigos relacionados a ${keyword}`
+    },
+    id: {
+      title: `Berita ${keyword} - oppagram`,
+      description: `Berita dan update K-POP terbaru tentang ${keyword}. Temukan semua artikel terkait ${keyword}`
+    },
+    th: {
+      title: `ข่าว${keyword} - oppagram`,
+      description: `ข่าวและอัปเดต K-POP ล่าสุดเกี่ยวกับ${keyword} รวมบทความที่เกี่ยวข้องกับ${keyword}`
+    },
+    vi: {
+      title: `Tin tức về ${keyword} - oppagram`,
+      description: `Tin tức và cập nhật K-POP mới nhất về ${keyword}. Tìm tất cả bài viết liên quan đến ${keyword}`
+    },
+    ms: {
+      title: `Berita ${keyword} - oppagram`,
+      description: `Berita dan kemas kini K-POP terkini tentang ${keyword}. Cari semua artikel berkaitan ${keyword}`
+    },
+    tr: {
+      title: `${keyword} Haberleri - oppagram`,
+      description: `${keyword} hakkında en son K-POP haberleri ve güncellemeleri. ${keyword} ile ilgili tüm makaleler`
+    },
+    hi: {
+      title: `${keyword} समाचार - oppagram`,
+      description: `${keyword} के बारे में नवीनतम K-POP समाचार और अपडेट। ${keyword} से संबंधित सभी लेख`
+    },
+    fil: {
+      title: `${keyword} News - oppagram`,
+      description: `Pinakabagong K-POP news at updates tungkol sa ${keyword}. Hanapin ang lahat ng artikulo tungkol sa ${keyword}`
+    },
+    ar: {
+      title: `أخبار ${keyword} - oppagram`,
+      description: `آخر أخبار وتحديثات الكيبوب حول ${keyword}. اعثر على جميع المقالات المتعلقة بـ ${keyword}`
+    },
+    fr: {
+      title: `Actualités ${keyword} - oppagram`,
+      description: `Dernières actualités et mises à jour K-POP sur ${keyword}. Trouvez tous les articles liés à ${keyword}`
+    },
+    de: {
+      title: `${keyword} Nachrichten - oppagram`,
+      description: `Neueste K-POP Nachrichten und Updates über ${keyword}. Finden Sie alle Artikel zu ${keyword}`
+    },
+    ru: {
+      title: `Новости ${keyword} - oppagram`,
+      description: `Последние новости и обновления K-POP о ${keyword}. Найдите все статьи, связанные с ${keyword}`
+    },
+    it: {
+      title: `Notizie su ${keyword} - oppagram`,
+      description: `Ultime notizie e aggiornamenti K-POP su ${keyword}. Trova tutti gli articoli relativi a ${keyword}`
+    },
+    pl: {
+      title: `Wiadomości ${keyword} - oppagram`,
+      description: `Najnowsze wiadomości i aktualizacje K-POP o ${keyword}. Znajdź wszystkie artykuły związane z ${keyword}`
+    },
+    nl: {
+      title: `${keyword} Nieuws - oppagram`,
+      description: `Laatste K-POP nieuws en updates over ${keyword}. Vind alle artikelen gerelateerd aan ${keyword}`
+    }
+  }
+  
+  const template = templates[lang] || templates.en
+  
+  // 모든 언어 대체 링크 생성
+  const alternateLinks = supportedLanguages.map(l => ({
+    rel: 'alternate',
+    hreflang: l,
+    href: `${baseUrl}/${l}/keyword/${encodeURIComponent(keyword)}`
+  }))
+  
+  return {
+    title: template.title,
+    htmlAttrs: {
+      lang: lang,
+      dir: lang === 'ar' ? 'rtl' : 'ltr'
+    },
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'description', content: template.description },
+      { name: 'keywords', content: `${keyword}, K-POP, ${info.keywords}` },
+      { name: 'robots', content: 'index, follow, max-image-preview:large' },
+      { property: 'og:title', content: template.title },
+      { property: 'og:description', content: template.description },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: `${baseUrl}/${lang}/keyword/${encodeURIComponent(keyword)}` },
+      { property: 'og:site_name', content: 'oppagram' },
+      { property: 'og:locale', content: info.locale },
+      { property: 'og:image', content: `${baseUrl}/og-image.jpg` },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: template.title },
+      { name: 'twitter:description', content: template.description },
+      { name: 'twitter:image', content: `${baseUrl}/og-image.jpg` }
+    ],
+    link: [
+      ...alternateLinks,
+      { rel: 'canonical', href: `${baseUrl}/${lang}/keyword/${encodeURIComponent(keyword)}` }
+    ],
+    script: [
+      {
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: template.title,
+          description: template.description,
+          url: `${baseUrl}/${lang}/keyword/${encodeURIComponent(keyword)}`,
+          isPartOf: {
+            '@type': 'WebSite',
+            name: 'oppagram',
+            url: baseUrl
+          },
+          about: {
+            '@type': 'Thing',
+            name: keyword
+          },
+          inLanguage: lang
+        })
+      }
+    ]
+  }
+}
