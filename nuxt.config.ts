@@ -1,4 +1,3 @@
-// nuxt.config.ts
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
@@ -16,45 +15,47 @@ export default defineNuxtConfig({
   },
   
   routeRules: {
-    // 메인 페이지들: 10분마다 재생성 (20개 언어)
-    '/': { isr: 600 },
-    '/ko': { isr: 600 },
-    '/en': { isr: 600 },
-    '/ja': { isr: 600 },
-    '/zh': { isr: 600 },
-    '/es': { isr: 600 },
-    '/pt': { isr: 600 },
-    '/id': { isr: 600 },
-    '/th': { isr: 600 },
-    '/vi': { isr: 600 },
-    '/ms': { isr: 600 },
-    '/tr': { isr: 600 },
-    '/hi': { isr: 600 },
-    '/fil': { isr: 600 },
-    '/ar': { isr: 600 },
-    '/fr': { isr: 600 },
-    '/de': { isr: 600 },
-    '/ru': { isr: 600 },
-    '/it': { isr: 600 },
-    '/pl': { isr: 600 },
-    '/nl': { isr: 600 },
+    // 메인 페이지들: 10분 캐시
+    '/': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/ko': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/en': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/ja': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/zh': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/es': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/pt': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/id': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/th': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/vi': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/ms': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/tr': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/hi': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/fil': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/ar': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/fr': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/de': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/ru': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/it': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/pl': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
+    '/nl': { headers: { 'cache-control': 'public, s-maxage=600, stale-while-revalidate=30' } },
     
-    // 기사 페이지: 정적 생성
+    // 기사 페이지: 24시간 캐시
     '/*/article/**': { 
-      isr: true
+      headers: { 'cache-control': 'public, s-maxage=86400, stale-while-revalidate=60' }
     },
-
+    
+    // 키워드 페이지: 20분 캐시
     '/*/keyword/**': { 
-      isr: 1200
+      headers: { 'cache-control': 'public, s-maxage=1200, stale-while-revalidate=30' }
     },
-
-
-    // API 프록시
+    
+    // API 프록시 (캐시 없음)
     '/api/**': {
-      proxy: 'http://127.0.0.1:8000/api/**'
+      proxy: 'http://127.0.0.1:8000/api/**',
+      headers: { 'cache-control': 'no-cache' }
     },
     '/static/**': {
       proxy: 'http://127.0.0.1:8000/static/**'
     }
   }
 })
+
