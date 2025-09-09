@@ -27,7 +27,14 @@ const hasMoreArticles = ref(true);
 // 언어 변경 함수
 function handleLanguageChange(event) {
   const newLang = event.target.value;
-  navigateTo(`/${newLang}`);
+  
+  // localStorage에 저장
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('preferred-language', newLang);
+  }
+  
+  // 페이지 이동
+  window.location.href = `/${newLang}`;
 }
 
 // 더 많은 기사 로드 (클라이언트에서만 실행)
@@ -99,8 +106,12 @@ function timeAgo(item) {
   return `${Math.floor(seconds)} seconds ago`;
 }
 
-// 스크롤 이벤트 (클라이언트에서만)
 onMounted(() => {
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('preferred-language', currentLang.value);
+  }
+
   const handleScroll = () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
       loadMore();
