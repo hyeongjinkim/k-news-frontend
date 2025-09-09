@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getKeywordPageMeta } from '~/utils/seo';
+import { getKeywordPageMeta } from '~/utils/seo';  // 👈 추가
 
 const route = useRoute();
 const keyword = ref(decodeURIComponent(route.params.keyword));
@@ -9,19 +9,8 @@ const currentLang = ref(route.params.lang);
 // SSG/ISR을 위한 데이터 페칭
 const { data: articles, error } = await useFetch(`/api/articles/keyword/${encodeURIComponent(keyword.value)}`);
 
+// SEO 메타태그 적용 👈 추가
 useHead(getKeywordPageMeta(keyword.value, currentLang.value))
-
-// 클라이언트에서 최신 데이터로 갱신
-onMounted(async () => {
-  try {
-    const freshArticles = await $fetch(`/api/articles/keyword/${encodeURIComponent(keyword.value)}?_t=${Date.now()}`);
-    if (freshArticles && freshArticles.length > 0) {
-      articles.value = freshArticles;
-    }
-  } catch (err) {
-    console.error('Failed to refresh keyword articles:', err);
-  }
-});
 
 function timeAgo(item) {
   const dateString = item.created_at || item.display_published_at;

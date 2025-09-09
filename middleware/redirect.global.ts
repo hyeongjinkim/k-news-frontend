@@ -1,52 +1,41 @@
+// middleware/redirect.global.ts
 export default defineNuxtRouteMiddleware((to, from) => {
-  // 이미 언어 경로에 있으면 스킵
-  const pathSegments = to.path.split('/')
-  const possibleLang = pathSegments[1]
-  const supportedLangs = ['ko', 'en', 'ja', 'zh', 'es', 'pt', 'id', 'th', 'vi', 'ms', 'tr', 'hi', 'fil', 'ar', 'fr', 'de', 'ru', 'it', 'pl', 'nl']
-  
-  if (supportedLangs.includes(possibleLang)) {
-    return // 이미 언어 페이지에 있음
-  }
-
-  // 루트(/)에서만 자동 리다이렉트
   if (to.path === '/') {
     const nuxtApp = useNuxtApp()
-    let detectedLang = 'en' // 기본값
     
-    // 1. localStorage에서 사용자 선택 언어 확인 (클라이언트만)
-    if (process.client) {
-      const savedLang = localStorage.getItem('preferred-language')
-      if (savedLang && supportedLangs.includes(savedLang)) {
-        return navigateTo(`/${savedLang}`, { redirectCode: 301 })
-      }
-    }
-    
-    // 2. 브라우저 언어 감지 (기존 로직)
+    // 언어 매핑 (브라우저 언어 코드 -> 서비스 언어)
     const languageMap: Record<string, string> = {
-      'ko': 'ko',
-      'en': 'en',
-      'ja': 'ja',
-      'zh': 'zh',
-      'es': 'es',
-      'pt': 'pt',
-      'id': 'id',
-      'th': 'th',
-      'vi': 'vi',
-      'ms': 'ms',
-      'tr': 'tr',
-      'hi': 'hi',
-      'fil': 'fil',
-      'ar': 'ar',
-      'fr': 'fr',
-      'de': 'de',
-      'ru': 'ru',
-      'it': 'it',
-      'pl': 'pl',
-      'nl': 'nl'
+      'ko': 'ko',    // 한국어
+      'en': 'en',    // 영어
+      'ja': 'ja',    // 일본어
+      'zh': 'zh',    // 중국어 (간체)
+      'zh-tw': 'zh', // 중국어 (번체) -> 간체로 매핑
+      'zh-hk': 'zh', // 중국어 (홍콩) -> 간체로 매핑
+      'es': 'es',    // 스페인어
+      'pt': 'pt',    // 포르투갈어
+      'id': 'id',    // 인도네시아어
+      'th': 'th',    // 태국어
+      'vi': 'vi',    // 베트남어
+      'ms': 'ms',    // 말레이어
+      'tr': 'tr',    // 터키어
+      'hi': 'hi',    // 힌디어
+      'fil': 'fil',  // 필리핀어
+      'tl': 'fil',   // 타갈로그어 -> 필리핀어로 매핑
+      'ar': 'ar',    // 아랍어
+      'fr': 'fr',    // 프랑스어
+      'de': 'de',    // 독일어
+      'ru': 'ru',    // 러시아어
+      'it': 'it',    // 이탈리아어
+      'pl': 'pl',    // 폴란드어
+      'nl': 'nl',    // 네덜란드어
     }
+    
+    let detectedLang = 'en' // 기본값
     
     if (process.server) {
       const acceptLanguage = nuxtApp.ssrContext?.event.node.req.headers['accept-language'] || ''
+      
+      // Accept-Language 파싱 (우선순위 고려)
       const languages = acceptLanguage
         .split(',')
         .map(lang => {
@@ -58,8 +47,29 @@ export default defineNuxtRouteMiddleware((to, from) => {
         })
         .sort((a, b) => b.priority - a.priority)
       
+      // 매칭 찾기
       for (const { code } of languages) {
         const primaryLang = code.split('-')[0]
+        
+        // 정확한 매칭 우선
+        if (languageMap[code]) {
+          detectedLang = languageMap[code]
+          break
+        }
+        // 주 언어 코드로 매칭
+        else if (languageMap[primaryLang]) {
+          detectedLang = languageMap[primaryLang]
+          break
+        }
+      }
+    } else if (process.client) {
+      // 브라우저 언어 목록 확인
+      const browserLanguages = navigator.languages || [navigator.language]
+      
+      for (const lang of browserLanguages) {
+        const code = lang.toLowerCase()
+        const primaryLang = code.split('-')[0]
+        
         if (languageMap[code]) {
           detectedLang = languageMap[code]
           break
