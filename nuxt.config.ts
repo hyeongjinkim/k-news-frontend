@@ -15,6 +15,7 @@ export default defineNuxtConfig({
       crawlLinks: false // 자동 프리렌더링 비활성화
     }
   },
+  static: false
   
   routeRules: {
     // 메인 페이지들: 10분 캐시
