@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { getArticlePageMeta } from '~/utils/seo';
 
 const route = useRoute();
@@ -14,28 +14,28 @@ if (currentArticle.value) {
   useHead(getArticlePageMeta(currentArticle.value, currentLang.value))
 }
 
-// --- 💡 줄바꿈을 처리하기 위한 computed 속성 (그대로 유지) ---
-const formattedSummary = computed(() => {
-  if (currentArticle.value && currentArticle.value.translations[currentLang.value]?.summary) {
-    return currentArticle.value.translations[currentLang.value].summary.split('\n');
+// 클라이언트에서 최신 데이터로 갱신
+onMounted(async () => {
+  try {
+    // 최신 기사 데이터 가져오기
+    const freshArticle = await $fetch(`/api/article/${articleId.value}?_t=${Date.now()}`);
+    if (freshArticle) {
+      currentArticle.value = freshArticle;
+    }
+    
+    // 최신 관련 기사 가져오기
+    const freshRelated = await $fetch(`/api/article/${articleId.value}/related?_t=${Date.now()}`);
+    if (freshRelated) {
+      relatedArticles.value = freshRelated;
+    }
+  } catch (err) {
+    console.error('Failed to refresh article data:', err);
   }
-  return [];
-});
-
-const formattedAdditionalInfo = computed(() => {
-  if (currentArticle.value && currentArticle.value.additional_info && currentArticle.value.additional_info[currentLang.value]) {
-    return currentArticle.value.additional_info[currentLang.value].split('\n');
-  }
-  return [];
-});
-
-onMounted(() => {
+  
   // 조회수 증가 API 호출
   $fetch(`/api/article/${articleId.value}/view`, {
     method: 'POST'
-  }).catch(() => {
-    // 실패해도 무시
-  });
+  }).catch(() => {});
 });
 
 // timeAgo 함수는 그대로 유지

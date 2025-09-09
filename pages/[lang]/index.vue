@@ -1,28 +1,27 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useArticles } from '~/composables/useArticles';
 import { getMainPageMeta } from '~/utils/seo';
-
 
 const route = useRoute();
 const { articles } = useArticles();
 
-// 언어 설정
 const currentLang = ref(route.params.lang || 'en');
-// SEO 메타태그 적용
 useHead(getMainPageMeta(currentLang.value))
 const searchQuery = ref('');
 
-// SSG를 위해 초기 데이터 로드 (첫 페이지만)
-const { data: initialArticles } = await useFetch('/api/articles?page=1&limit=20');
-if (initialArticles.value) {
-  articles.value = initialArticles.value;
+// SSR용 초기 데이터 (SEO를 위해 유지)
+const { data: serverArticles } = await useFetch('/api/articles?page=1&limit=20');
+
+// 서버 데이터로 초기화
+if (serverArticles.value) {
+  articles.value = serverArticles.value;
 }
 
-// 클라이언트에서만 실행될 상태들
 const isLoadingMore = ref(false);
-const page = ref(2); // 이미 1페이지는 로드했으므로 2부터 시작
+const page = ref(2);
 const hasMoreArticles = ref(true);
+
 
 // 언어 변경 함수
 function handleLanguageChange(event) {
@@ -106,13 +105,18 @@ function timeAgo(item) {
   return `${Math.floor(seconds)} seconds ago`;
 }
 
-onMounted(() => {
-  // localStorage와 현재 경로 동기화
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('preferred-language', currentLang.value);
+onMounted(async () => {
+  try {
+    // 클라이언트에서 최신 데이터 가져오기
+    const freshArticles = await $fetch('/api/articles?page=1&limit=20&_t=' + Date.now());
+    if (freshArticles && freshArticles.length > 0) {
+      articles.value = freshArticles;
+    }
+  } catch (err) {
+    console.error('Failed to refresh articles:', err);
   }
-
-  // 스크롤 이벤트 핸들러
+  
+  // 스크롤 이벤트 핸들러 추가 (무한 스크롤용)
   const handleScroll = () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
       loadMore();
@@ -121,6 +125,7 @@ onMounted(() => {
   
   window.addEventListener('scroll', handleScroll);
   
+  // cleanup
   onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
   });

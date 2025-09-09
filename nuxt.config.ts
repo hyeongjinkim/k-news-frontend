@@ -7,10 +7,12 @@ export default defineNuxtConfig({
     '~/assets/css/tailwind.css',
   ],
   
+  ssr: true, // SSR 유지 (SEO를 위해)
+  
   nitro: {
     prerender: {
       routes: ['/sitemap.xml'],
-      crawlLinks: true
+      crawlLinks: false // 자동 프리렌더링 비활성화
     }
   },
   
