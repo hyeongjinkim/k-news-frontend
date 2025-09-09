@@ -7,15 +7,15 @@ export default defineNuxtConfig({
     '~/assets/css/tailwind.css',
   ],
   
-  ssr: true, // SSR 유지 (SEO를 위해)
+  ssr: true,
   
   nitro: {
     prerender: {
-      routes: ['/sitemap.xml'],
-      crawlLinks: false // 자동 프리렌더링 비활성화
-    }
-  },
-  static: false
+      routes: [],  // 빈 배열로 변경 (아무것도 프리렌더링 안함)
+      crawlLinks: false
+    },
+    static: false  // static을 nitro 안으로 이동
+  },  // 👈 여기 콤마 추가!
   
   routeRules: {
     // 메인 페이지들: 10분 캐시
@@ -61,4 +61,3 @@ export default defineNuxtConfig({
     }
   }
 })
-
