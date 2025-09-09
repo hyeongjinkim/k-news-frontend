@@ -1,61 +1,59 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { getArticlePageMeta } from '~/utils/seo';
 
 const route = useRoute();
 const articleId = ref(Number(route.params.id));
-const currentLang = ref(route.params.lang);
+const currentLang = ref(route.params.lang || 'en');
 
-// SSG를 위해 useFetch 사용 (서버에서 미리 데이터 가져옴)
-const { data: currentArticle, error } = await useFetch(`/api/article/${articleId.value}`);
-const { data: relatedArticles } = await useFetch(`/api/article/${articleId.value}/related`);
-
-if (currentArticle.value) {
-  useHead(getArticlePageMeta(currentArticle.value, currentLang.value))
-}
-
-// 클라이언트에서 최신 데이터로 갱신
-onMounted(async () => {
+// 데이터 페칭 함수
+async function fetchArticleData() {
   try {
-    // 최신 기사 데이터 가져오기
-    const freshArticle = await $fetch(`/api/article/${articleId.value}?_t=${Date.now()}`);
-    if (freshArticle) {
-      currentArticle.value = freshArticle;
-    }
-    
-    // 최신 관련 기사 가져오기
-    const freshRelated = await $fetch(`/api/article/${articleId.value}/related?_t=${Date.now()}`);
-    if (freshRelated) {
-      relatedArticles.value = freshRelated;
-    }
-  } catch (err) {
-    console.error('Failed to refresh article data:', err);
+    const [article, related] = await Promise.all([
+      $fetch(`/api/article/${articleId.value}`),
+      $fetch(`/api/article/${articleId.value}/related`)
+    ]);
+    return { article, related };
+  } catch (error) {
+    console.error('Failed to fetch article:', error);
+    return { article: null, related: [] };
   }
-  
-  // 조회수 증가 API 호출
-  $fetch(`/api/article/${articleId.value}/view`, {
-    method: 'POST'
-  }).catch(() => {});
-});
-
-// timeAgo 함수는 그대로 유지
-function timeAgo(item) {
-  const dateString = item.created_at || item.display_published_at;
-  if (!dateString) return '';
-  const date = new Date(dateString.toString().replace(' ', 'T').replace(/\./g, '-') + 'Z');
-  const seconds = Math.floor((new Date() - date) / 1000);
-  if (seconds < 5) return "Just now";
-  if (seconds < 0) return "Just now";
-  let interval = seconds / 86400;
-  if (interval > 1) return `${Math.floor(interval)} days ago`;
-  interval = seconds / 3600;
-  if (interval > 1) return `${Math.floor(interval)} hours ago`;
-  interval = seconds / 60;
-  if (interval > 1) return `${Math.floor(interval)} minutes ago`;
-  return `${Math.floor(seconds)} seconds ago`;
 }
-</script>
 
+// SSR과 클라이언트 모두에서 작동
+const { data } = await useAsyncData(
+  `article-${articleId.value}`,
+  fetchArticleData
+);
+
+const currentArticle = computed(() => data.value?.article || null);
+const relatedArticles = computed(() => data.value?.related || []);
+
+// timeAgo 함수
+function timeAgo(item) {
+  if (!item) return '';
+  const dateString = item?.created_at || item?.display_published_at;
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString.toString().replace(' ', 'T').replace(/\./g, '-') + 'Z');
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return "Just now";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minutes ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hours ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+  } catch (e) {
+    return '';
+  }
+}
+
+// 클라이언트에서만 조회수 증가
+onMounted(() => {
+  $fetch(`/api/article/${articleId.value}/view`, { method: 'POST' }).catch(() => {});
+});
+</script>
 <template>
   <div>
     <!-- isLoading 부분 삭제하고 바로 currentArticle 체크 -->
