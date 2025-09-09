@@ -33,8 +33,8 @@ function handleLanguageChange(event) {
     localStorage.setItem('preferred-language', newLang);
   }
   
-  // 페이지 이동
-  window.location.href = `/${newLang}`;
+  // navigateTo 사용 (window.location.href 대신)
+  navigateTo(`/${newLang}`);
 }
 
 // 더 많은 기사 로드 (클라이언트에서만 실행)
@@ -107,11 +107,12 @@ function timeAgo(item) {
 }
 
 onMounted(() => {
-
+  // localStorage와 현재 경로 동기화
   if (typeof window !== 'undefined') {
     localStorage.setItem('preferred-language', currentLang.value);
   }
 
+  // 스크롤 이벤트 핸들러
   const handleScroll = () => {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
       loadMore();
@@ -140,27 +141,27 @@ watch(searchQuery, (newValue) => {
         <h1 class="text-xl font-bold text-gray-900">oppagram</h1>
         <div class="relative">
           <select :value="currentLang" @change="handleLanguageChange" class="text-sm border rounded-md py-1 pl-2 appearance-none bg-transparent pr-8">
-            <!-- 현재 선택된 언어를 먼저 표시 -->
-            <option v-if="currentLang === 'ko'" value="ko">🇰🇷 한국어</option>
-            <option v-if="currentLang === 'en'" value="en">🇺🇸 English</option>
-            <option v-if="currentLang === 'ja'" value="ja">🇯🇵 日本語</option>
-            <option v-if="currentLang === 'zh'" value="zh">🇨🇳 中文</option>
-            <option v-if="currentLang === 'es'" value="es">🇲🇽 Español</option>
-            <option v-if="currentLang === 'pt'" value="pt">🇧🇷 Português</option>
-            <option v-if="currentLang === 'id'" value="id">🇮🇩 Indonesia</option>
-            <option v-if="currentLang === 'th'" value="th">🇹🇭 ไทย</option>
-            <option v-if="currentLang === 'vi'" value="vi">🇻🇳 Tiếng Việt</option>
-            <option v-if="currentLang === 'ms'" value="ms">🇲🇾 Melayu</option>
-            <option v-if="currentLang === 'tr'" value="tr">🇹🇷 Türkçe</option>
-            <option v-if="currentLang === 'hi'" value="hi">🇮🇳 हिन्दी</option>
-            <option v-if="currentLang === 'fil'" value="fil">🇵🇭 Filipino</option>
-            <option v-if="currentLang === 'ar'" value="ar">🇸🇦 العربية</option>
-            <option v-if="currentLang === 'fr'" value="fr">🇫🇷 Français</option>
-            <option v-if="currentLang === 'de'" value="de">🇩🇪 Deutsch</option>
-            <option v-if="currentLang === 'ru'" value="ru">🇷🇺 Русский</option>
-            <option v-if="currentLang === 'it'" value="it">🇮🇹 Italiano</option>
-            <option v-if="currentLang === 'pl'" value="pl">🇵🇱 Polski</option>
-            <option v-if="currentLang === 'nl'" value="nl">🇳🇱 Nederlands</option>
+            <!-- v-if 제거하고 모든 옵션을 항상 표시 -->
+            <option value="ko">🇰🇷 한국어</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="ja">🇯🇵 日本語</option>
+            <option value="zh">🇨🇳 中文</option>
+            <option value="es">🇲🇽 Español</option>
+            <option value="pt">🇧🇷 Português</option>
+            <option value="id">🇮🇩 Indonesia</option>
+            <option value="th">🇹🇭 ไทย</option>
+            <option value="vi">🇻🇳 Tiếng Việt</option>
+            <option value="ms">🇲🇾 Melayu</option>
+            <option value="tr">🇹🇷 Türkçe</option>
+            <option value="hi">🇮🇳 हिन्दी</option>
+            <option value="fil">🇵🇭 Filipino</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="pl">🇵🇱 Polski</option>
+            <option value="nl">🇳🇱 Nederlands</option>
           </select>
           <svg class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </div>
