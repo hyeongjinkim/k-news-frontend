@@ -1,28 +1,50 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useArticles } from '~/composables/useArticles';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { getMainPageMeta } from '~/utils/seo';
 
-
 const route = useRoute();
-const { articles } = useArticles();
 
 // 언어 설정
 const currentLang = ref(route.params.lang || 'en');
 // SEO 메타태그 적용
 useHead(getMainPageMeta(currentLang.value))
+
+// 로컬 상태로 변경 (전역 상태 사용 안 함)
+const articles = ref([]);
 const searchQuery = ref('');
-
-// SSG를 위해 초기 데이터 로드 (첫 페이지만)
-const { data: initialArticles } = await useFetch('/api/articles?page=1&limit=20');
-if (initialArticles.value) {
-  articles.value = initialArticles.value;
-}
-
-// 클라이언트에서만 실행될 상태들
 const isLoadingMore = ref(false);
-const page = ref(2); // 이미 1페이지는 로드했으므로 2부터 시작
+const page = ref(1);
 const hasMoreArticles = ref(true);
+
+// 페이지 진입 시마다 새로 데이터 로드
+onMounted(async () => {
+  // 첫 페이지 데이터 새로 로드
+  await loadInitialArticles();
+  
+  // 스크롤 이벤트 리스너 추가
+  const handleScroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+      loadMore();
+    }
+  };
+  
+  window.addEventListener('scroll', handleScroll);
+  
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+  });
+});
+
+// 초기 데이터 로드 함수
+async function loadInitialArticles() {
+  try {
+    const initialData = await $fetch('/api/articles?page=1&limit=20');
+    articles.value = initialData;
+    page.value = 2; // 다음 페이지는 2부터
+  } catch (err) {
+    console.error('Failed to load initial articles:', err);
+  }
+}
 
 // 언어 변경 함수
 function handleLanguageChange(event) {
@@ -98,21 +120,6 @@ function timeAgo(item) {
   if (interval > 1) return `${Math.floor(interval)} minutes ago`;
   return `${Math.floor(seconds)} seconds ago`;
 }
-
-// 스크롤 이벤트 (클라이언트에서만)
-onMounted(() => {
-  const handleScroll = () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
-      loadMore();
-    }
-  };
-  
-  window.addEventListener('scroll', handleScroll);
-  
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll);
-  });
-});
 
 // 검색 입력 감지
 watch(searchQuery, (newValue) => {
