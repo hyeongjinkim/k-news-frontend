@@ -1,7 +1,7 @@
 // server/routes/sitemap.xml.js
 
 export default defineEventHandler(async (event) => {
-  const baseUrl = 'https://oppagram.com'
+  const baseUrl = 'https://www.oppagram.com'
   
   // 지원하는 모든 언어
   const languages = [

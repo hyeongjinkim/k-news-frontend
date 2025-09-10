@@ -1,18 +1,2 @@
 User-agent: *
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0
-
-User-agent: Googlebot-News
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-Sitemap: https://oppagram.com/sitemap.xml
-Sitemap: https://oppagram.com/sitemap-index.xml
+Disallow: /

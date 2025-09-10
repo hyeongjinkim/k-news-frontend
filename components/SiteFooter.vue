@@ -18,7 +18,7 @@
         </div>
         
         <div class="mt-4 flex justify-center space-x-4">
-          <a href="https://oppagram.com" class="text-xs text-blue-600 hover:underline">
+          <a href="https://www.oppagram.com" class="text-xs text-blue-600 hover:underline">
             Home
           </a>
           <span class="text-xs text-gray-400">|</span>

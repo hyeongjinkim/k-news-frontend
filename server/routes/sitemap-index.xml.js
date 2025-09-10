@@ -1,7 +1,7 @@
 // server/routes/sitemap-index.xml.js
 
 export default defineEventHandler(async (event) => {
-  const baseUrl = 'https://oppagram.com'
+  const baseUrl = 'https://www.oppagram.com'
   const now = new Date().toISOString()
   
   let sitemapIndex = '<?xml version="1.0" encoding="UTF-8"?>\n'
