@@ -2,17 +2,17 @@
 
 // 언어별 사이트 정보
 export const siteInfo = {
-  ko: {
-    title: 'oppagram - 최신 K-POP & 한국 연예 뉴스',
-    description: '실시간 K-POP 아이돌, 드라마, 영화 소식을 가장 빠르게 전달하는 글로벌 한류 미디어',
-    keywords: 'K-POP, 케이팝, BTS, 블랙핑크, 스트레이키즈, 세븐틴, NCT, 한국 연예, 아이돌, 한류, 드라마, 영화',
-    locale: 'ko_KR'
-  },
   en: {
     title: 'oppagram - Latest K-POP & Korean Entertainment News',
     description: 'Your fastest source for real-time K-POP idols, K-drama, and Korean entertainment news worldwide',
     keywords: 'K-POP, BTS, BLACKPINK, Stray Kids, SEVENTEEN, NCT, Korean entertainment, K-drama, idols, movies',
     locale: 'en_US'
+  },
+  ko: {
+    title: 'oppagram - 최신 K-POP & 한국 연예 뉴스',
+    description: '실시간 K-POP 아이돌, 드라마, 영화 소식을 가장 빠르게 전달하는 글로벌 한류 미디어',
+    keywords: 'K-POP, 케이팝, BTS, 블랙핑크, 스트레이키즈, 세븐틴, NCT, 한국 연예, 아이돌, 한류, 드라마, 영화',
+    locale: 'ko_KR'
   },
   ja: {
     title: 'oppagram - 最新K-POP・韓国エンタメニュース',
@@ -127,7 +127,7 @@ export const siteInfo = {
 // 메인 페이지 SEO 메타 생성
 export function getMainPageMeta(lang) {
   const info = siteInfo[lang] || siteInfo.en
-  const baseUrl = 'https://oppagram.com'
+  const baseUrl = 'https://www.oppagram.com'
   const allLangs = Object.keys(siteInfo)
   
   return {
@@ -192,7 +192,7 @@ export function getMainPageMeta(lang) {
 
 // 기사 페이지 SEO 메타 생성
 export function getArticlePageMeta(article, lang) {
-  const baseUrl = 'https://oppagram.com'
+  const baseUrl = 'https://www.oppagram.com'
   const title = article?.translations?.[lang]?.title || ''
   const description = article?.translations?.[lang]?.one_sentence_summary || ''
   const keywords = article?.keywords?.join(', ') || ''
@@ -278,7 +278,7 @@ export function getArticlePageMeta(article, lang) {
 
 export function getKeywordPageMeta(keyword, lang) {
   const info = siteInfo[lang] || siteInfo.en
-  const baseUrl = 'https://oppagram.com'
+  const baseUrl = 'https://www.oppagram.com'
   
   // 언어별 키워드 페이지 제목/설명 템플릿
   const templates = {

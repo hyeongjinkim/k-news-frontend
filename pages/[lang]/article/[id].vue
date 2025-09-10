@@ -54,6 +54,21 @@ function timeAgo(item) {
   if (interval > 1) return `${Math.floor(interval)} minutes ago`;
   return `${Math.floor(seconds)} seconds ago`;
 }
+
+function formatLocalDateTime(dateString) {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString.toString().replace(' ', 'T').replace(/\./g, '-') + 'Z');
+  
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
+}
+
 </script>
 
 <template>
@@ -73,7 +88,7 @@ function timeAgo(item) {
           <img v-if="currentArticle.image_path" :src="currentArticle.image_path.startsWith('http') ? currentArticle.image_path : `/static/images/${currentArticle.image_path.split('/').pop()}`" class="w-full rounded-lg mb-4 bg-gray-200" alt="Article Image">
           
           <h2 class="text-2xl font-bold mb-2 leading-tight">{{ currentArticle.translations[currentLang]?.title }}</h2>
-          <div class="text-xs text-gray-400 mb-4">{{ currentArticle.press }} · {{ timeAgo(currentArticle) }}</div>
+          <div class="text-xs text-gray-400 mb-4">{{ currentArticle.press }} · {{ formatLocalDateTime(currentArticle.created_at || currentArticle.display_published_at) }}</div>
           
           <!-- 키워드 섹션을 클릭 가능하게 수정 -->
           <div v-if="currentArticle.keywords && currentArticle.keywords.length" class="flex flex-wrap gap-2 mb-6">
@@ -120,6 +135,7 @@ function timeAgo(item) {
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
     
     <div v-else-if="error" class="p-8 text-center">
