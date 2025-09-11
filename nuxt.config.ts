@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     '~/assets/css/tailwind.css',
   ],
   
-  ##여기 - app 설정 추가
   app: {
     head: {
       script: [
