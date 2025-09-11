@@ -8,6 +8,27 @@ export default defineNuxtConfig({
     '~/assets/css/tailwind.css',
   ],
   
+  ##여기 - app 설정 추가
+  app: {
+    head: {
+      script: [
+        {
+          src: 'https://www.googletagmanager.com/gtag/js?id=G-Y5NXN91Q9E',
+          async: true
+        },
+        {
+          innerHTML: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-Y5NXN91Q9E');
+          `,
+          type: 'text/javascript'
+        }
+      ]
+    }
+  },
+  
   nitro: {
     prerender: {
       routes: ['/sitemap.xml'],
