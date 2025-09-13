@@ -1,19 +1,24 @@
+<!-- components/FeaturedSection.vue -->
 <template>
-  <div v-if="featured && featured.length > 0" class="featured-wrapper">
-    <h2 class="featured-title">✨ Featured</h2>
-    <div class="featured-grid">
+  <div v-if="featured && featured.length > 0" class="mb-8">
+    <h2 class="text-xl font-bold mb-4 px-4">✨ Featured</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
       <article 
         v-for="item in featured" 
         :key="item.id"
-        class="featured-card"
+        class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
       >
         <NuxtLink :to="`/${currentLang}/article/${item.id}`">
-          <div class="featured-image">
-            <img :src="item.image_url" :alt="getTitle(item)">
+          <div class="aspect-[4/3] overflow-hidden">
+            <img 
+              :src="item.image_url" 
+              :alt="getTitle(item)"
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            >
           </div>
-          <div class="featured-content">
-            <h3>{{ getTitle(item) }}</h3>
-            <p>{{ getSummary(item) }}</p>
+          <div class="p-4">
+            <h3 class="font-bold text-base mb-2 line-clamp-2">{{ getTitle(item) }}</h3>
+            <p class="text-sm text-gray-600 line-clamp-2">{{ getSummary(item) }}</p>
           </div>
         </NuxtLink>
       </article>
