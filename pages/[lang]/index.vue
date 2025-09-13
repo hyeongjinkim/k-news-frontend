@@ -15,8 +15,6 @@ const searchQuery = ref('');
 const isLoadingMore = ref(false);
 const page = ref(1);
 const hasMoreArticles = ref(true);
-const showFooter = ref(false);  // 푸터 표시 상태 추가
-const firstLoadComplete = ref(false);  // 첫 로드 완료 상태 추가
 
 // 페이지 진입 시마다 새로 데이터 로드
 onMounted(async () => {
@@ -56,9 +54,6 @@ function handleLanguageChange(event) {
 
 // 더 많은 기사 로드 (클라이언트에서만 실행)
 async function loadMore() {
-  // 첫 번째 로드가 완료되지 않았으면 리턴
-  if (!firstLoadComplete.value) return;
-  
   if (!hasMoreArticles.value || isLoadingMore.value) return;
   
   isLoadingMore.value = true;
@@ -75,7 +70,6 @@ async function loadMore() {
     
     if (newArticles.length === 0) {
       hasMoreArticles.value = false;
-      showFooter.value = true;  // 더 이상 기사가 없으면 푸터 표시
     } else {
       articles.value.push(...newArticles);
       page.value++;
@@ -85,11 +79,6 @@ async function loadMore() {
   } finally {
     isLoadingMore.value = false;
   }
-}
-
-async function loadMoreManually() {
-  firstLoadComplete.value = true;
-  await loadMore();
 }
 
 // 검색 기능 (클라이언트에서만)
@@ -201,16 +190,7 @@ watch(searchQuery, (newValue) => {
           </article>
         </NuxtLink>
       </div>
-      <div v-if="!firstLoadComplete && articles.length > 0" class="p-6 text-center">
-        <button 
-          @click="loadMoreManually"
-          class="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 mx-auto">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          Load More Articles
-        </button>
-      </div>
+      <div v-if="isLoadingMore" class="p-4 text-center text-gray-500">Loading more...</div>
     </main>
   </div>
 </template>
