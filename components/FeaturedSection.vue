@@ -1,8 +1,8 @@
 <!-- components/FeaturedSection.vue -->
 <template>
   <div v-if="featured && featured.length > 0" class="mb-8">
-    <h2 class="text-xl font-bold mb-4 px-4">✨ Featured</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
+    <h2 class="text-xl font-bold mb-4 px-4">✨ Trending</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
       <article 
         v-for="item in featured" 
         :key="item.id"
