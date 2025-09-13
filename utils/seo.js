@@ -124,6 +124,9 @@ export const siteInfo = {
   }
 }
 
+// 모든 지원 언어를 siteInfo 객체의 키에서 자동으로 추출
+const supportedLanguages = Object.keys(siteInfo)
+
 // 메인 페이지 SEO 메타 생성
 export function getMainPageMeta(lang) {
   const info = siteInfo[lang] || siteInfo.en
